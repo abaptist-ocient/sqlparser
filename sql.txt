@@ -1,103 +1,805 @@
-SELECT 'DUNS' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(DUNS)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(DUNS)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(DUNS,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(DUNS,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
-              CHAR(0) AS OUT_RANGE, 2 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
-          UNION ALL
+
+
+WITH VMWARE_GLOBAL_OCT_TRANS_COS
+AS (SELECT 
+'' AS filler_1,
+WB1784.duns_number,
+WB1784.business_name,
+WB1784.trade_style_1,
+WB1784.registered_address_indicator,
+WB1784.address_1,
+WB1784.address_2,
+WB1784.city_name,
+WB1784.state_name,
+WB1784.country_name,
+WB1784.city_code,
+WB1784.county_code,
+WB1784.state_province_code,
+WB1784.state_province_abbrv,
+WB1784.country_code,
+WB1784.postal_code,
+WB1784.continent_code,
+WB1784.mail_address,
+WB1784.mail_address_city_name,
+WB1784.mail_address_county_name,
+WB1784.mail_address_state_province_name,
+WB1784.mail_address_country_name,
+WB1784.mail_address_city_code,
+WB1784.mail_address_county_code,
+WB1784.mail_address_state_province_code,
+WB1784.mail_address_state_province_abbrv,
+WB1784.mail_address_country_code,
+WB1784.mail_address_postal_code,
+WB1784.mail_address_continent_code,
+WB1784.national_id,
+WB1784.national_id_system_code,
+WB1784.country_access_code,
+WB1784.telephone,
+'' AS filler_2,
+WB1784.fax,
+WB1784.ceo_name,
+WB1784.ceo_title,
+WB1784.line_of_business,
+WB1784.us_1987_sic_1,
+WB1784.us_1987_sic_2,
+WB1784.us_1987_sic_3,
+WB1784.us_1987_sic_4,
+WB1784.us_1987_sic_5,
+WB1784.us_1987_sic_6,
+WB1784.primary_local_activity_code,
+WB1784.activity_indicator,
+WB1784.year_started,
+WB1784.annual_sales,
+WB1784.annual_sales_indicator,
+WB1784.annual_sales_us_dollar,
+WB1784.currency_code, 
+WB1784.employees_here,
+WB1784.employees_here_indicator,
+WB1784.employees_total,
+WB1784.employees_total_indicator,
+WB1784.principal_included_indicator,
+WB1784.import_export_code,
+WB1784.legal_status,
+'' AS filler_3,
+WB1784.status_code,
+WB1784.subsidiary_code,
+'' AS filler_4,
+WB1784.previous_duns,
+WB1784.report_date,
+'' AS filler_5,
+COALESCE(NULLIF(WB1784.hq_parent_duns, 0), WB1784.duns_number) AS hq_parent_duns,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.business_name),'0'), WB1784.hq_parent_name) as hq_parent_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.address_1),'0'), WB1784.hq_parent_address) as hq_parent_address,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.city_name),'0'), WB1784.hq_parent_city_name) as hq_parent_city_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.state_name),'0'), WB1784.hq_parent_state_province) as hq_parent_state_province,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.country_name),'0'), WB1784.hq_parent_country_name) as hq_parent_country_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.city_code),'0'), WB1784.hq_parent_city_code) as hq_parent_city_code,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.county_code),'0'), WB1784.hq_parent_county_code) as hq_parent_county_code,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.hq_parent_duns)), WB1784.state_province_abbrv),'0'), WB1784.hq_parent_state_province_abbrv) as hq_parent_state_province_abbrv,
+COALESCE(NULLIF(COALESCE(NULLIF(0, WB1784.hq_parent_duns), WB1784.country_code),0), WB1784.hq_parent_country_code) as hq_parent_country_code,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(hq_parent_duns)), postal_code),'0'), hq_parent_postal_code) as hq_parent_postal_code,
+COALESCE(NULLIF(COALESCE(NULLIF(0, WB1784.hq_parent_duns), WB1784.continent_code),0), WB1784.hq_parent_continent_code) as hq_parent_continent_code,
+COALESCE(NULLIF(WB1784.domestic_ultimate_duns, 0), WB1784.duns_number) AS domestic_ultimate_duns,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.domestic_ultimate_duns)), WB1784.business_name),'0'), WB1784.domestic_ultimate_name) as domestic_ultimate_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.domestic_ultimate_duns)), WB1784.address_1),'0'), WB1784.domestic_ultimate_address) as domestic_ultimate_address,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.domestic_ultimate_duns)), WB1784.city_name),'0'), WB1784.domestic_ultimate_city_name) as domestic_ultimate_city_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.domestic_ultimate_duns)), WB1784.state_name),'0'), WB1784.domestic_ultimate_state_province) as domestic_ultimate_state_province,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.domestic_ultimate_duns)), WB1784.city_code),'0'), WB1784.domestic_ultimate_city_code) as domestic_ultimate_city_code,
+COALESCE(NULLIF(COALESCE(NULLIF(0, WB1784.domestic_ultimate_duns), WB1784.country_code),0), WB1784.domestic_ultimate_country_code) as domestic_ultimate_country_code,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.domestic_ultimate_duns)), WB1784.state_province_abbrv),'0'), WB1784.domestic_ultimate_state_province_abbrv) as domestic_ultimate_state_province_abbrv,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.domestic_ultimate_duns)), WB1784.postal_code),'0'), WB1784.domestic_ultimate_postal_code) as domestic_ultimate_postal_code,
+COALESCE(NULLIF(WB1784.global_ultimate_duns, 0), WB1784.duns_number) AS global_ultimate_duns,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.business_name),'0'), WB1784.global_ultimate_name) as global_ultimate_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.address_1),'0'), WB1784.global_ultimate_address) as global_ultimate_address,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.city_name),'0'), WB1784.global_ultimate_city_name) as global_ultimate_city_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.state_name),'0'), WB1784.global_ultimate_state_province) as global_ultimate_state_province,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.country_name),'0'), WB1784.global_ultimate_country_name) as global_ultimate_country_name,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.city_code),'0'), WB1784.global_ultimate_city_code) as global_ultimate_city_code,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.county_code),'0'), WB1784.global_ultimate_county_code) as global_ultimate_county_code,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.state_province_abbrv),'0'), WB1784.global_ultimate_state_province_code) as global_ultimate_state_province_code,
+COALESCE(NULLIF(COALESCE(NULLIF(0, WB1784.global_ultimate_duns), WB1784.country_code),0), WB1784.global_ultimate_country_code) as global_ultimate_country_code,
+COALESCE(NULLIF(COALESCE(NULLIF('0', CHAR(WB1784.global_ultimate_duns)), WB1784.postal_code),'0'), WB1784.global_ultimate_postal_code) as global_ultimate_postal_code,
+COALESCE(NULLIF(COALESCE(NULLIF(0, WB1784.global_ultimate_duns), WB1784.continent_code),0), WB1784.global_ultimate_continent_code) as global_ultimate_continent_code,
+WB1784.number_of_family_members_global,
+WB1784.global_dias_code,
+WB1784.hierarchy_code,
+WB1784.family_update_date,
+'' AS filler_8,
+URL.domain_1 AS url_1,
+'' AS filler_9,
+'' AS filler_10,
+'' AS filler_11,
+'' AS filler_12,
+'' AS filler_13,
+'' AS filler_14,
+'' AS filler_15,
+'' AS filler_16,
+'' AS filler_17,
+'' AS filler_18,
+'' AS filler_19,
+'' AS filler_20,
+'' AS filler_21,
+'' AS filler_22,
+'' AS filler_23,
+'' AS filler_24,
+'' AS filler_25,
+'' AS filler_26,
+'' AS filler_27,
+'' AS filler_28,
+WB3100.percent_growth_sales_3yr,
+coalesce(nullif(substr(coalesce(nullif(char(sign(percent_growth_sales_3yr)),'0'), ''),1,1), '1'), '+') AS percent_growth_sales_3yr_sign,
+ABS(WB3100.percent_growth_sales_3yr) AS percent_growth_sales_3yr_data,
+WB3100.percent_growth_employees_3yr,
+coalesce(nullif(substr(coalesce(nullif(char(sign(percent_growth_employees_3yr)),'0'), ''),1,1), '1'), '+') AS percent_growth_employees_3yr_sign,
+ABS(WB3100.percent_growth_employees_3yr) AS percent_growth_employees_3yr_data,
+/*comes from GDMI3900*/ 
+'' AS sales_year_4,
+/*comes from GDMI3900*/ 
+'' AS employee_year_4,
+WB3100.percent_growth_sales_5yr,
+coalesce(nullif(substr(coalesce(nullif(char(sign(percent_growth_employees_5yr)),'0'), ''),1,1), '1'), '+') AS percent_growth_sales_5yr_sign,
+ABS(WB3100.percent_growth_sales_5yr) AS percent_growth_sales_5yr_data,
+WB3100.percent_growth_employees_5yr,
+coalesce(nullif(substr(coalesce(nullif(char(sign(percent_growth_sales_5yr)),'0'), ''),1,1), '1'), '+') AS percent_growth_employees_5yr_sign,
+ABS(WB3100.percent_growth_employees_5yr) AS percent_growth_employees_5yr_data,
+/*comes from GDMI3900*/ 
+'' AS sales_year_6,
+/*comes from GDMI3900*/ 
+'' AS employee_year_6,
+WB3100.base_year_sales_3yrs,
+WB3100.base_year_employees_3yrs,
+WB3100.latitude_new,
+/*
+SUBSTRING(WB3100.latitude_new,1,1) AS latitude_new_sign,
+SUBSTRING(WB3100.latitude_new,2,9) AS latitude_new_data,
+WB3100.longitude_new,
+SUBSTRING(WB3100.longitude_new,1,1) AS longitude_new_sign,
+SUBSTRING(WB3100.longitude_new,2,10) AS longitude_new_data,
+*/
+WB3100.sic_1,
+WB3100.sic_2,
+WB3100.sic_3,
+WB3100.sic_4,
+WB3100.sic_5,
+WB3100.sic_6,
+/*comes from GDMI3900*/    
+'' AS bemfab_ind
+FROM dearborn.wb1784 WB1784
+LEFT OUTER JOIN dearborn.url URL
+    ON WB1784.duns_number = URL.duns_number
+LEFT OUTER JOIN dearborn.wb3100 WB3100
+    ON WB1784.duns_number = WB3100.duns_number
+)
           SELECT 'BUSINESS_NAME' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(BUSINESS_NAME)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(BUSINESS_NAME)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               3 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
-          SELECT 'TRADESTYLE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(TRADESTYLE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRADESTYLE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+          SELECT 'trade_style_1' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(trade_style_1)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(trade_style_1)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               4 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'REGISTERED_ADDRESS_INDICATOR' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(REGISTERED_ADDRESS_INDICATOR)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(REGISTERED_ADDRESS_INDICATOR)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               5 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
-          SELECT 'ADDRESS_1_PHYSICAL' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_1_PHYSICAL)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_1_PHYSICAL)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+          SELECT 'ADDRESS_1' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_1)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_1)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               6 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
-          SELECT 'ADDRESS_2_PHYSICAL' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_2_PHYSICAL)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_2_PHYSICAL)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+          SELECT 'ADDRESS_2' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_2)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(ADDRESS_2)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               7 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'CITY_NAME' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(CITY_NAME)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(CITY_NAME)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               8 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
-          SELECT 'STATE_PROVINCE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_PROVINCE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_PROVINCE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+          SELECT 'STATE_NAME' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_NAME)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_NAME)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
-              9 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+              10 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'COUNTRY_NAME' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(COUNTRY_NAME)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(COUNTRY_NAME)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               10 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'CITY_CODE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(CITY_CODE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(CITY_CODE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               11 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'COUNTY_CODE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(COUNTY_CODE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(COUNTY_CODE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               12 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'STATE_PROVINCE_CODE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_PROVINCE_CODE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_PROVINCE_CODE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               13 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'STATE_PROVINCE_ABBRV' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_PROVINCE_ABBRV)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(STATE_PROVINCE_ABBRV)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               14 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
-          UNION ALL
-          SELECT 'COUNTRY_CODE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(COUNTRY_CODE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(COUNTRY_CODE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
-              CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
-              15 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'POSTAL_CODE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(POSTAL_CODE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(POSTAL_CODE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(POSTAL_CODE,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(POSTAL_CODE,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
               CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
-          UNION ALL
-          SELECT 'CONTINENT_CODE' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(CONTINENT_CODE)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
-              CHAR(SUM(CASE WHEN LENGTH(TRIM(CONTINENT_CODE)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
-              CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
-              17 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
           UNION ALL
           SELECT 'MAIL_ADDRESS' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(MAIL_ADDRESS)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
               CHAR(SUM(CASE WHEN LENGTH(TRIM(MAIL_ADDRESS)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
               CHAR(0) AS NON_NUMERIC, CHAR(0) AS ZEROS, CHAR(0) AS OUT_RANGE,
               18 AS FIELD_SEQ
-            FROM IDAPDMK.VMWARE_GLOBAL_OCT_TRANS_COS
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+          UNION ALL
+          SELECT 'mail_address_city_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_city_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_city_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_city_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_city_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'mail_address_county_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_county_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_county_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_county_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_county_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS 
+           UNION ALL
+          SELECT 'mail_address_state_province_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_state_province_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_state_province_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_state_province_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_state_province_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'mail_address_country_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_country_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_country_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_country_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_country_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'mail_address_city_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_city_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_city_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_city_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_city_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'mail_address_county_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_county_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_county_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_county_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_county_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'mail_address_state_province_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_state_province_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_state_province_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_state_province_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_state_province_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'mail_address_state_province_abbrv' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_state_province_abbrv)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_state_province_abbrv)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_state_province_abbrv,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_state_province_abbrv,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'mail_address_postal_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_postal_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(mail_address_postal_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_postal_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(mail_address_postal_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+           SELECT 'telephone' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(telephone)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(telephone)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(telephone,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(telephone,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'fax' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(fax)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(fax)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(fax,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(fax,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'ceo_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(ceo_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(ceo_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(ceo_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(ceo_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'ceo_title' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(ceo_title)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(ceo_title)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(ceo_title,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(ceo_title,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'line_of_business' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(line_of_business)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(line_of_business)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(line_of_business,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(line_of_business,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+         SELECT 'filler_2' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_2)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_2)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_2,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_2,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'legal_status' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(legal_status)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(legal_status)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(legal_status,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(legal_status,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_3' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_3)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_3)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_3,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_3,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_4' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_4)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_4)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_4,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_4,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_5' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_5)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_5)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_5,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_5,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_address' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_address)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_address)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_address,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_address,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_city_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_city_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_city_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_city_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_city_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_state_province' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_state_province)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_state_province)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_state_province,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_state_province,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_country_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_country_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_country_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_country_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_country_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_city_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_city_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_city_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_city_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_city_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_county_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_county_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_county_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_county_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_county_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_state_province_abbrv' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_state_province_abbrv)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_state_province_abbrv)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_state_province_abbrv,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_state_province_abbrv,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'hq_parent_postal_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_postal_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(hq_parent_postal_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_postal_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(hq_parent_postal_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'domestic_ultimate_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'domestic_ultimate_address' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_address)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_address)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_address,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_address,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'domestic_ultimate_city_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_city_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_city_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_city_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_city_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'domestic_ultimate_state_province' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_state_province)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_state_province)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_state_province,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_state_province,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'domestic_ultimate_city_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_city_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_city_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_city_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_city_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'domestic_ultimate_state_province_abbrv' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_state_province_abbrv)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_state_province_abbrv)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_state_province_abbrv,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_state_province_abbrv,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'domestic_ultimate_postal_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_postal_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(domestic_ultimate_postal_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_postal_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(domestic_ultimate_postal_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_address' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_address)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_address)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_address,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_address,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_city_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_city_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_city_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_city_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_city_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_state_province' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_state_province)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_state_province)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_state_province,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_state_province,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_country_name' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_country_name)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_country_name)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_country_name,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_country_name,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_city_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_city_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_city_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_city_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_city_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_county_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_county_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_county_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_county_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_county_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_state_province_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_state_province_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_state_province_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_state_province_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_state_province_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'global_ultimate_postal_code' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_postal_code)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(global_ultimate_postal_code)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_postal_code,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(global_ultimate_postal_code,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_8' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_8)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_8)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_8,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_8,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'url_1' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(url_1)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(url_1)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(url_1,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(url_1,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_9' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_9)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_9)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_9,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_9,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_10' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_10)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_10)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_10,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_10,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_11' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_11)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_11)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_11,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_11,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_12' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_12)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_12)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_12,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_12,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_13' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_13)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_13)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_13,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_13,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_14' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_14)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_14)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_14,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_14,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_15' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_15)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_15)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_15,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_15,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS 
+           UNION ALL
+          SELECT 'filler_16' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_16)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_16)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_16,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_16,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_17' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_17)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_17)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_17,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_17,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_18' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_18)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_18)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_18,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_18,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_19' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_19)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_19)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_19,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_19,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_20' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_20)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_20)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_20,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_20,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT ' filler_21' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM( filler_21)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM( filler_21)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE( filler_21,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE( filler_21,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_22' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_22)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_22)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_22,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_22,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_23' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_23)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_23)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_23,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_23,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_24' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_24)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_24)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_24,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_24,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_25' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_25)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_25)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_25,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_25,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_26' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_26)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_26)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_26,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_26,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_27' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_27)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_27)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_27,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_27,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'filler_28' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_28)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(filler_28)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_28,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(filler_28,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'percent_growth_employees_3yr_sign' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(percent_growth_employees_3yr_sign)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(percent_growth_employees_3yr_sign)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(percent_growth_employees_3yr_sign,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(percent_growth_employees_3yr_sign,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'sales_year_4' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(sales_year_4)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(sales_year_4)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(sales_year_4,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(sales_year_4,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'percent_growth_sales_5yr_sign' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(percent_growth_sales_5yr_sign)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(percent_growth_sales_5yr_sign)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(percent_growth_sales_5yr_sign,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(percent_growth_sales_5yr_sign,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'percent_growth_employees_5yr_sign' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(percent_growth_employees_5yr_sign)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(percent_growth_employees_5yr_sign)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(percent_growth_employees_5yr_sign,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(percent_growth_employees_5yr_sign,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'sales_year_6' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(sales_year_6)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(sales_year_6)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(sales_year_6,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(sales_year_6,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'employee_year_6' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(employee_year_6)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(employee_year_6)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(employee_year_6,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(employee_year_6,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'latitude_new' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(latitude_new)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(latitude_new)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(latitude_new,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(latitude_new,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'latitude_new_sign' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(latitude_new_sign)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(latitude_new_sign)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(latitude_new_sign,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(latitude_new_sign,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'latitude_new_data' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(latitude_new_data)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(latitude_new_data)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(latitude_new_data,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(latitude_new_data,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'longitude_new' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(longitude_new)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(longitude_new)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(longitude_new,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(longitude_new,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'longitude_new_data' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(longitude_new_data)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(longitude_new_data)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(longitude_new_data,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(longitude_new_data,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+           UNION ALL
+          SELECT 'bemfab_ind' AS FIELD_NAME, CHAR(SUM(CASE WHEN LENGTH(TRIM(bemfab_ind)) > 0 THEN 1 ELSE 0 END)) AS PRESENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(bemfab_ind)) = 0 THEN 1 ELSE 0 END)) AS ABSENT,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(bemfab_ind,'          ','0123456789'))) > 0 THEN 1 ELSE 0 END)) AS NON_NUMERIC,
+              CHAR(SUM(CASE WHEN LENGTH(TRIM(TRANSLATE(bemfab_ind,' X','0 '))) = 0 THEN 1 ELSE 0 END)) AS ZEROS,
+              CHAR(0) AS OUT_RANGE, 16 AS FIELD_SEQ
+            FROM VMWARE_GLOBAL_OCT_TRANS_COS
+
+           
+
